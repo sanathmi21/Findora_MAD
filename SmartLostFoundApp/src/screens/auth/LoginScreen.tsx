@@ -1,26 +1,15 @@
 import React, { useState, useRef } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  StatusBar,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Animated,
-} from 'react-native';
+import {View,Text,TextInput,TouchableOpacity,StyleSheet,Dimensions,StatusBar,KeyboardAvoidingView,Platform,ScrollView,Animated,} from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 const { height } = Dimensions.get('window');
 
 interface Props {
   onNavigateToRegister: () => void;
+  onLoginSuccess: () => void;
 }
 
-const LoginScreen: React.FC<Props> = ({ onNavigateToRegister }) => {
+const LoginScreen: React.FC<Props> = ({ onNavigateToRegister, onLoginSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -37,7 +26,8 @@ const LoginScreen: React.FC<Props> = ({ onNavigateToRegister }) => {
   };
 
   const handleLogin = () => {
-    console.log('Login pressed', { username, password });
+    // TODO: add real authentication logic
+    onLoginSuccess();
   };
 
   return (
@@ -57,7 +47,7 @@ const LoginScreen: React.FC<Props> = ({ onNavigateToRegister }) => {
           <Text style={styles.brandName}>Findora</Text>
         </View>
 
-        {/* Card — vertically centered */}
+        {/* Card */}
         <View style={styles.card}>
           <View style={styles.avatarContainer}>
             <MaterialIcons name="account-circle" size={56} color="#333" />
@@ -140,7 +130,7 @@ const LoginScreen: React.FC<Props> = ({ onNavigateToRegister }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Bottom spacer + footer */}
+        {/* Bottom footer */}
         <View style={styles.bottomSection}>
           <View style={styles.footer}>
             <TouchableOpacity>
@@ -166,7 +156,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    justifyContent: 'space-between',   // top, card, bottom spread evenly
+    justifyContent: 'space-between',   
     minHeight: height,
   },
   topSection: {
