@@ -16,5 +16,7 @@ export default function App() {
     return <RegisterScreen onNavigateToLogin={() => setScreen('login')} />;
   }
 
-  return <LoginScreen onNavigateToRegister={() => setScreen('register')} />;
+  return <LoginScreen 
+  onNavigateToRegister={() => setScreen('register')} 
+  onLoginSuccess={() => console.log('Login Success')}/>;
 }
