@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
-import {View,Text,TextInput,TouchableOpacity,StyleSheet,Dimensions,StatusBar,KeyboardAvoidingView,Platform,ScrollView,Animated,} from 'react-native';
+import {View,Text,TextInput,TouchableOpacity,StyleSheet,Dimensions,StatusBar,KeyboardAvoidingView,Platform,ScrollView,Animated,Alert} from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { supabase } from '../../utils/supabase';
+import { authApi } from '../../api/authApi';
 
 const { height } = Dimensions.get('window');
 
@@ -25,9 +27,25 @@ const LoginScreen: React.FC<Props> = ({ onNavigateToRegister, onLoginSuccess }) 
     Animated.spring(buttonScale, { toValue: 1, useNativeDriver: true, friction: 8 }).start();
   };
 
-  const handleLogin = () => {
-    // TODO: add real authentication logic
-    onLoginSuccess();
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!username || !password) {
+      Alert.alert('Missing Fields', 'Please enter both your username/email and password.');
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await authApi.login(username, password);
+
+    setLoading(false);
+
+    if (error) {
+      Alert.alert('Login Failed', error.message);
+    } else {
+      onLoginSuccess();
+    }
   };
 
   return (
