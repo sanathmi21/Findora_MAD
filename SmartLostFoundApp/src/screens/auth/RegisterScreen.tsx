@@ -1,20 +1,9 @@
 import React, { useState, useRef } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  StatusBar,
-  KeyboardAvoidingView,
-  ScrollView,
-  Animated,
-  Image,
-  Dimensions,
-} from 'react-native';
+import {View,Text,TextInput,TouchableOpacity,StyleSheet,Platform,StatusBar,KeyboardAvoidingView,ScrollView,Animated,Image,Dimensions,Alert} from 'react-native';
 import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg';
+import { supabase } from '../../utils/supabase';
+import { authApi } from '../../api/authApi';
 
 const { height } = Dimensions.get('window');
 
@@ -45,8 +34,33 @@ const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
     Animated.spring(buttonScale, { toValue: 1, useNativeDriver: true, friction: 8 }).start();
   };
 
-  const handleRegister = () => {
-    console.log('Register pressed', { username, email, password, confirmPassword });
+  // Add this to your existing states inside RegisterScreen
+  const [loading, setLoading] = useState(false);
+
+  // Replace your handleRegister with this:
+  const handleRegister = async () => {
+    if (!email || !password || !username) {
+      Alert.alert('Missing Fields', 'Please fill out all required fields.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Password Mismatch', 'Your passwords do not match. Please try again.');
+      return;
+    }
+
+    setLoading(true);
+
+    const {error } = await authApi.register(email, password, username);
+
+    setLoading(false);
+
+    if (error) {
+      Alert.alert('Registration Failed', error.message);
+    } else {
+      Alert.alert('Success!', 'Your account has been created. Please check your email for a verification link.');
+      onNavigateToLogin();
+    }
   };
 
   const handleUploadPhoto = () => {
