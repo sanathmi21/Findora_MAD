@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import {View,Text,TextInput,TouchableOpacity,StyleSheet,Dimensions,StatusBar,KeyboardAvoidingView,Platform,ScrollView,Animated,Alert} from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { supabase } from '../../utils/supabase';
 import { authApi } from '../../api/authApi';
 
 const { height } = Dimensions.get('window');
@@ -12,11 +11,12 @@ interface Props {
 }
 
 const LoginScreen: React.FC<Props> = ({ onNavigateToRegister, onLoginSuccess }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [usernameFocused, setUsernameFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const buttonScale = useRef(new Animated.Value(1)).current;
 
@@ -27,17 +27,15 @@ const LoginScreen: React.FC<Props> = ({ onNavigateToRegister, onLoginSuccess }) 
     Animated.spring(buttonScale, { toValue: 1, useNativeDriver: true, friction: 8 }).start();
   };
 
-  const [loading, setLoading] = useState(false);
-
   const handleLogin = async () => {
-    if (!username || !password) {
-      Alert.alert('Missing Fields', 'Please enter both your username/email and password.');
+    if (!email || !password) {
+      Alert.alert('Missing Fields', 'Please enter both your email and password.');
       return;
     }
 
     setLoading(true);
 
-    const { error } = await authApi.login(username, password);
+    const { error } = await authApi.login(email, password);
 
     setLoading(false);
 
@@ -76,25 +74,26 @@ const LoginScreen: React.FC<Props> = ({ onNavigateToRegister, onLoginSuccess }) 
             Log in to recover what matters most.
           </Text>
 
-          {/* Username */}
+          {/* Email */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Username</Text>
-            <View style={[styles.inputWrapper, usernameFocused && styles.inputWrapperFocused]}>
-              <Ionicons
-                name="person-outline"
+            <Text style={styles.label}>Email address</Text>
+            <View style={[styles.inputWrapper, emailFocused && styles.inputWrapperFocused]}>
+              <MaterialIcons
+                name="mail-outline"
                 size={18}
-                color={usernameFocused ? '#e6a817' : '#999'}
+                color={emailFocused ? '#e6a817' : '#999'}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
-                placeholder="Enter your username"
+                placeholder="name@example.com"
                 placeholderTextColor="#bbb"
-                value={username}
-                onChangeText={setUsername}
+                value={email}
+                onChangeText={setEmail}
                 autoCapitalize="none"
-                onFocus={() => setUsernameFocused(true)}
-                onBlur={() => setUsernameFocused(false)}
+                keyboardType="email-address"
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
               />
             </View>
           </View>
