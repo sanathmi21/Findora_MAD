@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import {View,Text,TextInput,TouchableOpacity,StyleSheet,Platform,StatusBar,KeyboardAvoidingView,ScrollView,Animated,Image,Dimensions,Alert} from 'react-native';
 import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg';
-import { supabase } from '../../utils/supabase';
+import * as ImagePicker from 'expo-image-picker';
 import { authApi } from '../../api/authApi';
 
 const { height } = Dimensions.get('window');
@@ -34,10 +34,8 @@ const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
     Animated.spring(buttonScale, { toValue: 1, useNativeDriver: true, friction: 8 }).start();
   };
 
-  // Add this to your existing states inside RegisterScreen
   const [loading, setLoading] = useState(false);
 
-  // Replace your handleRegister with this:
   const handleRegister = async () => {
     if (!email || !password || !username) {
       Alert.alert('Missing Fields', 'Please fill out all required fields.');
@@ -58,13 +56,30 @@ const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
     if (error) {
       Alert.alert('Registration Failed', error.message);
     } else {
-      Alert.alert('Success!', 'Your account has been created. Please check your email for a verification link.');
+      Alert.alert('Success!', 'Your account has been created successfully.');
       onNavigateToLogin();
     }
   };
 
-  const handleUploadPhoto = () => {
-    console.log('Upload photo pressed');
+//image picker function
+  const handleUploadPhoto = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission Required', 'You need to allow access to your photos to upload a profile picture.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true, 
+      aspect: [1, 1],      
+      quality: 0.5,        
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
   };
 
   return (
