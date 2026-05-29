@@ -4,14 +4,18 @@ import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-ic
 import Svg, { Path } from 'react-native-svg';
 import * as ImagePicker from 'expo-image-picker';
 import { authApi } from '../../api/authApi';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../App';
 
 const { height } = Dimensions.get('window');
 
+type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
+
 interface Props {
-  onNavigateToLogin: () => void;
+  navigation: RegisterScreenNavigationProp;
 }
 
-const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
+const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,9 +59,6 @@ const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
 
     if (error) {
       Alert.alert('Registration Failed', error.message);
-    } else {
-      Alert.alert('Success!', 'Your account has been created successfully.');
-      onNavigateToLogin();
     }
   };
 
@@ -126,7 +127,7 @@ const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
 
       {/* Fixed header: back + brand */}
       <View style={styles.headerRow}>
-        <TouchableOpacity onPress={onNavigateToLogin} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.backButton}>
           <Ionicons name="arrow-back" size={22} color="#0d7377" />
         </TouchableOpacity>
         <Text style={styles.brandName}>Findora</Text>
@@ -256,7 +257,7 @@ const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
           {/* Login link */}
           <View style={styles.loginRow}>
             <Text style={styles.loginText}>Already have an account? </Text>
-            <TouchableOpacity onPress={onNavigateToLogin}>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
               <Text style={styles.loginLink}>Login here</Text>
             </TouchableOpacity>
           </View>

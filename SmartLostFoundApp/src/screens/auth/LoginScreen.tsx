@@ -2,15 +2,19 @@ import React, { useState, useRef } from 'react';
 import {View,Text,TextInput,TouchableOpacity,StyleSheet,Dimensions,StatusBar,KeyboardAvoidingView,Platform,ScrollView,Animated,Alert} from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { authApi } from '../../api/authApi';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../App';
 
 const { height } = Dimensions.get('window');
 
+// Define navigation prop types
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+
 interface Props {
-  onNavigateToRegister: () => void;
-  onLoginSuccess: () => void;
+  navigation: LoginScreenNavigationProp;
 }
 
-const LoginScreen: React.FC<Props> = ({ onNavigateToRegister, onLoginSuccess }) => {
+const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -41,8 +45,6 @@ const LoginScreen: React.FC<Props> = ({ onNavigateToRegister, onLoginSuccess }) 
 
     if (error) {
       Alert.alert('Login Failed', error.message);
-    } else {
-      onLoginSuccess();
     }
   };
 
@@ -142,7 +144,7 @@ const LoginScreen: React.FC<Props> = ({ onNavigateToRegister, onLoginSuccess }) 
         {/* Create account */}
         <View style={styles.registerRow}>
           <Text style={styles.registerText}>New to Findora? </Text>
-          <TouchableOpacity onPress={onNavigateToRegister}>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
             <Text style={styles.registerLink}>Create an account</Text>
           </TouchableOpacity>
         </View>
