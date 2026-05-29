@@ -1,9 +1,11 @@
 import { supabase } from '../utils/supabase';
+import { decode } from 'base64-arraybuffer'; 
+import * as FileSystem from 'expo-file-system/legacy';
 
 export const authApi = {
   // Register a new user and upload their avatar
   register: async (email: string, password: string, username: string, imageUri: string | null) => {
-    // create the user with Supabase Auth
+    // create the core authentication user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: email,
       password: password,
@@ -21,21 +23,22 @@ export const authApi = {
     let avatarUrl = null;
 
     if (userId) {
-      // upload avatar if user provided one during registration
+      // If the user selected a profile image, upload it
       if (imageUri) {
         try {
-          const response = await fetch(imageUri);
-          const blob = await response.blob();
+          // Fix for Android Network Request Failed: Read file as base64 string
+          const base64 = await FileSystem.readAsStringAsync(imageUri, { encoding: 'base64' });
 
-          // Upload to the 'avatars' bucket
+          // Upload the decoded base64 string to the 'avatars' bucket
           const { error: uploadError } = await supabase.storage
             .from('avatars')
-            .upload(`${userId}/avatar.jpg`, blob, {
+            .upload(`${userId}/avatar.jpg`, decode(base64), {
               contentType: 'image/jpeg',
               upsert: true, 
             });
 
           if (!uploadError) {
+            // Get the public URL instantly
             const { data: publicUrlData } = supabase.storage
               .from('avatars')
               .getPublicUrl(`${userId}/avatar.jpg`);
@@ -49,6 +52,7 @@ export const authApi = {
         }
       }
 
+      // Insert the new user profile into the 'profiles' table
       const { error: profileError } = await supabase.from('profiles').insert([
         { id: userId, username: username, email: email, avatar_url: avatarUrl }
       ]);
