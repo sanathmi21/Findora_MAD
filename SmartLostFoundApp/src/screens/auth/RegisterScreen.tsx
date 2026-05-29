@@ -49,7 +49,7 @@ const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
 
     setLoading(true);
 
-    const {error } = await authApi.register(email, password, username);
+    const {error } = await authApi.register(email, password, username, profileImage);
 
     setLoading(false);
 
@@ -61,20 +61,55 @@ const RegisterScreen: React.FC<Props> = ({ onNavigateToLogin }) => {
     }
   };
 
-//image picker function
-  const handleUploadPhoto = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+// Handle profile picture selection
+  const handleUploadPhoto = () => {
+    Alert.alert(
+      'Profile Picture',
+      'Would you like to take a photo or choose from your gallery?',
+      [
+        { text: 'Take Photo', onPress: openCamera },
+        { text: 'Choose from Gallery', onPress: openGallery },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
+
+  const openCamera = async () => {
+    // Ask for camera permissions
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
     if (permissionResult.granted === false) {
-      Alert.alert('Permission Required', 'You need to allow access to your photos to upload a profile picture.');
+      Alert.alert('Permission Required', 'You need to allow camera access to take a photo.');
       return;
     }
 
+    // Open the camera
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true, 
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
+  };
+
+  const openGallery = async () => {
+    //Ask for gallery permissions
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission Required', 'You need to allow gallery access to choose a photo.');
+      return;
+    }
+
+    //Open the gallery
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true, 
-      aspect: [1, 1],      
-      quality: 0.5,        
+      aspect: [1, 1],
+      quality: 0.5,
     });
 
     if (!result.canceled) {
